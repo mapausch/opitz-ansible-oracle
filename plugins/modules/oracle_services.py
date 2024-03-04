@@ -258,8 +258,8 @@ def ensure_service_state(
 ):
     configchange = False
     if not newservice:
-        _wanted_ai = ['']
-        _wanted_pi = ['']
+        _wanted_ai = []
+        _wanted_pi = []
         _wanted_config = {}
         if rlbgoal is not None:
             _wanted_config['rlb'] = rlbgoal
@@ -295,7 +295,13 @@ def ensure_service_state(
             cursor, module, msg, oracle_home, name, database_name
         )
 
-        # Compare instance configurations
+        # Compare instance configurations (have to sort lists before comparison makes sense)
+        _wanted_ai.sort()
+        _wanted_pi.sort()
+        _curr_config_ai.sort()
+        _curr_config_pi.sort()
+
+
         if _wanted_pi != _curr_config_pi:
             _inst_temp += ' -preferred %s' % (preferred_instances)
         if _wanted_ai != _curr_config_ai and '' not in _wanted_ai:
@@ -337,6 +343,7 @@ def ensure_service_state(
             )
         else:
             msg = "Service %s (%s) is in the intended state" % (name, database_name)
+            change = False
             if configchange:
                 msg += 'after configchanges had been applied'
                 change = True
